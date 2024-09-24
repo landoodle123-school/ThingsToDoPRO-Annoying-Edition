@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
-using System.Drawing;
 
 namespace ThingsToDoPRO
 {
@@ -9,7 +8,6 @@ namespace ThingsToDoPRO
     {
         // Declare and initialize filePath correctly
         private readonly string filePath;
-        private readonly string imagePath;
 
         public Form1()
         {
@@ -17,11 +15,9 @@ namespace ThingsToDoPRO
 
             // Set filePath to the path in the Documents folder
             filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "tasks.txt");
-            imagePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "background.txt");
 
-            // Load tasks and background when the form loads
+            // Load tasks when the form loads
             LoadTasksFromFile();
-            LoadBackgroundImage();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -67,12 +63,13 @@ namespace ThingsToDoPRO
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            // Optional: Handle text changes if needed
+            MessageBox.Show(“I am here to be annoying”, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
         }
 
-        private void taskList_SelectedIndexChanged(object sender, EventArgs e)
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Optional: Handle selection changes if needed
+            MessageBox.Show(“I am here to be annoying”, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e)
@@ -81,6 +78,7 @@ namespace ThingsToDoPRO
             {
                 taskList.Items.Remove(taskList.SelectedItems[0]);
                 SaveTasksToFile();
+	MessageBox.Show(“I am here to be annoying”, "Warning", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -128,56 +126,54 @@ namespace ThingsToDoPRO
                             Checked = bool.Parse(parts[1])
                         };
                         taskList.Items.Add(item);
+                        }
                     }
-                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred loading the task list from the file: {ex.Message}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show($"An error occurred loading the tasklist from the file. If your tasklist is not supposed to be empty, please raise an issue on GitHub. Error code: {ex.Message}", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
         private void changeBackground_Click(object sender, EventArgs e)
-        {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                string selectedImagePath = openFileDialog1.FileName;
+{
+    // Initialize the OpenFileDialog variable
+    using (OpenFileDialog openFileDialog = new OpenFileDialog())
+    {
+        // Set filter to display only image files
+        openFileDialog.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif";
 
-                try
-                {
-                    this.BackgroundImage = Image.FromFile(selectedImagePath);
-                    this.BackgroundImageLayout = ImageLayout.Stretch;
-
-                    // Save the path of the selected image
-                    File.WriteAllText(imagePath, selectedImagePath);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"An error occurred setting the background image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-        }
-
-        private void LoadBackgroundImage()
+        // Show the dialog and check if the user selected a file
+        if (openFileDialog.ShowDialog() == DialogResult.OK)
         {
             try
             {
-                if (File.Exists(imagePath))
-                {
-                    string loadedImagePath = File.ReadAllText(imagePath);
-                    this.BackgroundImage = Image.FromFile(loadedImagePath);
-                    this.BackgroundImageLayout = ImageLayout.Stretch;
-                }
+                // Load the selected image
+                Image selectedImage = Image.FromFile(openFileDialog.FileName);
+
+                // Set the form's background image
+                this.BackgroundImage = selectedImage;
+
+                // Optional: Set layout to control how the image fits the form
+                this.BackgroundImageLayout = ImageLayout.Stretch; // Other options: Tile, Center, Zoom, None
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred loading the background image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // Display an error message if something goes wrong
+                MessageBox.Show($"An error occurred while setting the background image: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            SaveTasksToFile();
         }
     }
 }
+
+
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+            SaveTasksToFile(); // Save tasks when the form closes
+        }
+    }
+}
+
